@@ -9,7 +9,9 @@ struct BrowseView: View {
     var body: some View {
         VStack {
             CustomTitle(title: "Browse")
-            IndicatorTabView(currentTab: $currentTab, tabItems: tabItems)
+            GeometryReader { geometry in
+                IndicatorTabView(geometry: geometry, currentTab: self.$currentTab, tabItems: self.tabItems)
+            }
         }
     }
 }

@@ -14,8 +14,6 @@ struct TabBar<TabItemType: TabItem>: View {
     @State private var width: CGFloat = 0
 
     var body: some View {
-        var totalWidth: CGFloat = 0
-
         if isCalcuating {
             return
                 ZStack {
@@ -31,9 +29,7 @@ struct TabBar<TabItemType: TabItem>: View {
                                         tabItem.unselectedLabel
                                     }
                                 }.accessibility(label: tabItem.a11yLabel).padding().anchorPreference(key: WidthPreferenceKey.self, value: .bounds) { anchor in
-                                    print("booyah old: \(totalWidth), new: \(totalWidth + self.geometry[anchor].width), diff: \(self.geometry[anchor].width)")
-                                    totalWidth += self.geometry[anchor].width
-                                    return totalWidth
+                                    self.geometry[anchor].width
                                 }
                         })
                             .accentColor(self.isSelected(tabItem) ? .accentColor : .primary)
@@ -43,9 +39,8 @@ struct TabBar<TabItemType: TabItem>: View {
                                 transform: { anchor in self.isSelected(tabItem) ? .some(anchor) : nil }
                         )
                     }
-                }.onPreferenceChange(WidthPreferenceKey.self) { thing in
-                    print("booyah2 new width = \(totalWidth)... greater? \(totalWidth > self.geometry.size.width)... thing \(thing)")
-                    self.width = totalWidth
+                }.onPreferenceChange(WidthPreferenceKey.self) { width in
+                    self.width = width
                 }.onAppear {
                     self.isCalcuating = false
                 }.eraseToAnyView()
@@ -122,7 +117,8 @@ struct WidthPreferenceKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
 
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
+        print("booyah reducing... value: \(value), diff: \(nextValue()), newValue: \(value + nextValue())")
+        value += nextValue()
     }
 }
 

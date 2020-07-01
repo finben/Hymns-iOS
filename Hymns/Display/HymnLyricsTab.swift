@@ -86,32 +86,28 @@ struct HymnLyricsTab_Previews: PreviewProvider {
             GeometryReader { geometry in
                 TabBar(currentTab: currentTabLyrics,
                        geometry: geometry,
-                       tabItems: [lyricsTab, guitarTab, pianoTab]).previewDisplayName("missing chords")
-            }
-
+                       tabItems: [lyricsTab, guitarTab, pianoTab])
+            }.previewDisplayName("missing chords")
             GeometryReader { geometry in
                 TabBar(currentTab: currentTabLyrics,
                        geometry: geometry,
-                       tabItems: [lyricsTab, chordsTab, guitarTab, pianoTab]).previewDisplayName("lyrics selected")
-            }
-
+                       tabItems: [lyricsTab, chordsTab, guitarTab, pianoTab])
+            }.previewDisplayName("lyrics selected")
             GeometryReader { geometry in
                 TabBar(currentTab: currentTabChords,
                        geometry: geometry,
-                       tabItems: [lyricsTab, chordsTab, guitarTab, pianoTab]).previewDisplayName("chords selected")
-            }
-
+                       tabItems: [lyricsTab, chordsTab, guitarTab, pianoTab])
+            }.previewDisplayName("chords selected")
             GeometryReader { geometry in
                 TabBar(currentTab: currentTabGuitar,
                        geometry: geometry,
-                       tabItems: [lyricsTab, chordsTab, guitarTab, pianoTab]).previewDisplayName("guitar selected")
-            }
-
+                       tabItems: [lyricsTab, chordsTab, guitarTab, pianoTab])
+            }.previewDisplayName("guitar selected")
             GeometryReader { geometry in
                 TabBar(currentTab: currentTabPiano,
                        geometry: geometry,
-                       tabItems: [lyricsTab, chordsTab, guitarTab, pianoTab]).previewDisplayName("piano selected")
-            }
+                       tabItems: [lyricsTab, chordsTab, guitarTab, pianoTab])
+            }.previewDisplayName("piano selected")
         }.previewLayout(.fixed(width: 450, height: 50))
     }
 }

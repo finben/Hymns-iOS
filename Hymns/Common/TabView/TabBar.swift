@@ -137,7 +137,7 @@ struct TabBar_Previews: PreviewProvider {
                                .chords(EmptyView().eraseToAnyView()),
                                .guitar(EmptyView().eraseToAnyView()),
                                .piano(EmptyView().eraseToAnyView())])
-            }
+            }.previewDisplayName("lyrics tab selected")
             GeometryReader { geometry in
                 TabBar(
                     currentTab: Binding<HomeTab>(
@@ -149,8 +149,8 @@ struct TabBar_Previews: PreviewProvider {
                         .browse,
                         .favorites,
                         .settings
-                ]).previewDisplayName("home tab selected")
-            }
+                ])
+            }.previewDisplayName("home tab selected")
             GeometryReader { geometry in
                 TabBar(
                     currentTab: Binding<HomeTab>(
@@ -162,8 +162,8 @@ struct TabBar_Previews: PreviewProvider {
                         .browse,
                         .favorites,
                         .settings
-                ]).previewLayout(.sizeThatFits).previewDisplayName("browse tab selected")
-            }
+                ])
+            }.previewDisplayName("browse tab selected")
         }.previewLayout(.fixed(width: 350, height: 50))
     }
 }

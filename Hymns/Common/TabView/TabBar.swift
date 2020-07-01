@@ -10,77 +10,71 @@ struct TabBar<TabItemType: TabItem>: View {
     let geometry: GeometryProxy
     let tabItems: [TabItemType]
 
-    @State private var isCalcuating = true
+    @State private var width: CGFloat = 0
 
     var body: some View {
         var totalWidth: CGFloat = 0
 
-        if isCalcuating {
-            return
-                ZStack {
-                    ForEach(self.tabItems) { tabItem in
-                        Button(action: {},
-                               label: {
+        return
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    ForEach(tabItems) { tabItem in
+                        Spacer()
+                        Button(
+                            action: {
+                                withAnimation(.default) {
+                                    self.currentTab = tabItem
+                                }
+                        },
+                            label: {
                                 Group {
                                     if self.isSelected(tabItem) {
-                                        tabItem.selectedLabel
+                                        Text("sdfsdfasfadsfdsafasdfsaf")
                                     } else {
                                         tabItem.unselectedLabel
                                     }
-                                }.padding()
-                        }).anchorPreference(key: WidthPreferenceKey.self, value: .bounds) { anchor in
-                            totalWidth += self.geometry[anchor].width
-                            print("booyah new width: \(totalWidth)")
-                            return totalWidth
-                        }
+                                }.accessibility(label: tabItem.a11yLabel).padding().anchorPreference(key: WidthPreferenceKey.self, value: .bounds) { anchor in
+                                    print("booyah old: \(totalWidth), new: \(totalWidth + self.geometry[anchor].width), diff: \(self.geometry[anchor].width)")
+                                    totalWidth += self.geometry[anchor].width
+                                    return totalWidth
+                                }
+                        })
+                            .accentColor(self.isSelected(tabItem) ? .accentColor : .primary)
+                            .anchorPreference(
+                                key: FirstNonNilPreferenceKey<Anchor<CGRect>>.self,
+                                value: .bounds,
+                                transform: { anchor in self.isSelected(tabItem) ? .some(anchor) : nil }
+                        )
+                        Spacer()
                     }
-                }.onAppear {
-                    self.isCalcuating = false
-                }.eraseToAnyView()
-        } else {
-            return
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack {
-                        ForEach(tabItems) { tabItem in
-                            Spacer()
-                            Button(
-                                action: {
-                                    withAnimation(.default) {
-                                        self.currentTab = tabItem
-                                    }
-                            },
-                                label: {
-                                    Group {
-                                        if self.isSelected(tabItem) {
-                                            tabItem.selectedLabel
-                                        } else {
-                                            tabItem.unselectedLabel
-                                        }
-                                    }.accessibility(label: tabItem.a11yLabel).padding()
-                            })
-                                .accentColor(self.isSelected(tabItem) ? .accentColor : .primary)
-                                .anchorPreference(
-                                    key: FirstNonNilPreferenceKey<Anchor<CGRect>>.self,
-                                    value: .bounds,
-                                    transform: { anchor in self.isSelected(tabItem) ? .some(anchor) : nil }
+                }
+                .frame(width: getWidth())
+            }.backgroundPreferenceValue(FirstNonNilPreferenceKey<Anchor<CGRect>>.self) { boundsAnchor in
+                GeometryReader { proxy in
+                    boundsAnchor.map { anchor in
+                        indicator(
+                            width: proxy[anchor].width,
+                            offset: .init(
+                                width: proxy[anchor].minX,
+                                height: proxy[anchor].height - 4 // Make the indicator a little higher
                             )
-                            Spacer()
-                        }
-                    }.frame(width: totalWidth > geometry.size.width ? nil : geometry.size.width)
-                }.backgroundPreferenceValue(FirstNonNilPreferenceKey<Anchor<CGRect>>.self) { boundsAnchor in
-                    GeometryReader { proxy in
-                        boundsAnchor.map { anchor in
-                            indicator(
-                                width: proxy[anchor].width,
-                                offset: .init(
-                                    width: proxy[anchor].minX,
-                                    height: proxy[anchor].height - 4 // Make the indicator a little higher
-                                )
-                            )
-                        }
+                        )
                     }
-                }.background(Color(.systemBackground)).eraseToAnyView()
-        }
+                }
+            }
+            .onPreferenceChange(WidthPreferenceKey.self) { thing in
+                print("booyah2 new width = \(totalWidth)... greater? \(totalWidth > self.geometry.size.width)")
+                self.width = totalWidth
+            }
+            .background(Color(.systemBackground)).eraseToAnyView()
+    }
+
+    private func getWidth() -> CGFloat? {
+        let width = self.width
+        let geoWidth = geometry.size.width
+        let greater = width > geoWidth
+        print("booyah3 width: \(width), geoWidth: \(geoWidth), greater: \(greater)")
+        return width > geoWidth ? nil : geoWidth
     }
 
     private func isSelected(_ tabItem: TabItemType) -> Bool {

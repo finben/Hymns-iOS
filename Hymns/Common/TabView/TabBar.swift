@@ -32,11 +32,10 @@ struct TabBar<TabItemType: TabItem>: View {
                                     } else {
                                         tabItem.unselectedLabel
                                     }
-                                }.accessibility(label: tabItem.a11yLabel).padding()
-                                    .anchorPreference(key: WidthPreferenceKey.self, value: .bounds) { anchor in
-                                        self.geometry[anchor].width
-                                }
+                                }.accessibility(label: tabItem.a11yLabel).padding(.vertical)
                         })
+                    }.anchorPreference(key: WidthPreferenceKey.self, value: .bounds) { anchor in
+                        return self.geometry[anchor].width
                     }
                 }.onPreferenceChange(WidthPreferenceKey.self) { width in
                     self.width = width
@@ -44,7 +43,7 @@ struct TabBar<TabItemType: TabItem>: View {
         } else {
             return
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack {
+                    HStack(spacing: 0) {
                         ForEach(tabItems) { tabItem in
                             Spacer()
                             Button(
@@ -59,7 +58,7 @@ struct TabBar<TabItemType: TabItem>: View {
                                     } else {
                                         tabItem.unselectedLabel
                                     }
-                                }.accessibility(label: tabItem.a11yLabel).padding()
+                                }.accessibility(label: tabItem.a11yLabel).padding(.vertical)
                             }).accentColor(self.isSelected(tabItem) ? .accentColor : .primary)
                                 .anchorPreference(
                                     key: FirstNonNilPreferenceKey<Anchor<CGRect>>.self,
@@ -78,9 +77,9 @@ struct TabBar<TabItemType: TabItem>: View {
                         boundsAnchor.map { anchor in
                             Rectangle()
                                 .foregroundColor(.accentColor)
-                                .frame(width: proxy[anchor].width, height: 3, alignment: .bottom)
+                                .frame(width: proxy[anchor].width + 24, height: 3, alignment: .bottom)
                                 .offset(.init(
-                                    width: proxy[anchor].minX,
+                                    width: proxy[anchor].minX - 12,
                                     height: proxy[anchor].height - 4)) // Make the indicator a little higher
                         }
                     }
@@ -125,13 +124,11 @@ struct TabBar_Previews: PreviewProvider {
     static var previews: some View {
         var home: HomeTab = .home
         var browse: HomeTab = .browse
-        var lyricsTab: HymnLyricsTab = .lyrics(EmptyView().eraseToAnyView())
+        let lyricsTab: HymnLyricsTab = .lyrics(EmptyView().eraseToAnyView())
         return Group {
             GeometryReader { geometry in
                 TabBar(
-                    currentTab: Binding<HymnLyricsTab>(
-                        get: {lyricsTab},
-                        set: {lyricsTab = $0}),
+                    currentTab: .constant(lyricsTab),
                     geometry: geometry,
                     tabItems: [lyricsTab,
                                .chords(EmptyView().eraseToAnyView()),
@@ -164,7 +161,7 @@ struct TabBar_Previews: PreviewProvider {
                         .settings
                 ])
             }.previewDisplayName("browse tab selected")
-        }.previewLayout(.fixed(width: 350, height: 50))
+        }.previewLayout(.fixed(width: 375, height: 50))
     }
 }
 #endif

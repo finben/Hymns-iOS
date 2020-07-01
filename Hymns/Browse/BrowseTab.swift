@@ -86,9 +86,12 @@ struct BrowseTab_Previews: PreviewProvider {
         let currentTabClassic = Binding<BrowseTab>(
             get: {classicTab},
             set: {classicTab = $0})
-        let clasicSelected = TabBar(currentTab: currentTabClassic, tabItems: [classicTab, newTunesTab, newSongsTab, childrensTab, scripturesTab, allTab])
         return Group {
-            clasicSelected.toPreviews()
+            GeometryReader { geometry in
+                TabBar(currentTab: currentTabClassic,
+                       geometry: geometry,
+                       tabItems: [classicTab, newTunesTab, newSongsTab, childrensTab, scripturesTab, allTab]).toPreviews()
+            }
         }
     }
 }

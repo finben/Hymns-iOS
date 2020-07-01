@@ -7,23 +7,23 @@ import SwiftUI
  */
 public struct IndicatorTabView<TabType: TabItem>: View {
     @Binding private var currentTab: TabType
-    
+
     private let geometry: GeometryProxy
     private let tabItems: [TabType]
     private let tabAlignment: TabAlignment
-    
+
     init(geometry: GeometryProxy, currentTab: Binding<TabType>, tabItems: [TabType], tabAlignment: TabAlignment = .top) {
         self._currentTab = currentTab
         self.geometry = geometry
         self.tabItems = tabItems
         self.tabAlignment = tabAlignment
     }
-    
+
     public var body: some View {
         VStack(alignment: .center, spacing: 0) {
             if tabAlignment == .top {
                 VStack(spacing: 0) {
-                    TabBar(currentTab: $currentTab, tabItems: tabItems)
+                    TabBar(currentTab: $currentTab, geometry: geometry, tabItems: tabItems)
                     Divider()
                 }
             }
@@ -31,7 +31,7 @@ public struct IndicatorTabView<TabType: TabItem>: View {
             if tabAlignment == .bottom {
                 VStack(spacing: 0) {
                     Divider()
-                    TabBar(currentTab: $currentTab, tabItems: tabItems)
+                    TabBar(currentTab: $currentTab, geometry: geometry, tabItems: tabItems)
                 }
             }
         }
@@ -45,9 +45,9 @@ public enum TabAlignment {
 
 #if DEBUG
 struct IndicatorTabView_Previews: PreviewProvider {
-    
+
     static var previews: some View {
-        
+
         let viewModel = HymnLyricsViewModel(hymnToDisplay: PreviewHymnIdentifiers.hymn40)
         viewModel.lyrics = [VerseViewModel(verseNumber: "1", verseLines: classic40_preview.lyrics[0].verseContent),
                             VerseViewModel(verseLines: classic40_preview.lyrics[1].verseContent),
@@ -61,7 +61,7 @@ struct IndicatorTabView_Previews: PreviewProvider {
             .chords(PDFViewer(url: URL(string: "http://www.hymnal.net/en/hymn/h/40/f=gtpdf")!).eraseToAnyView()),
             .guitar(PDFViewer(url: URL(string: "http://www.hymnal.net/en/hymn/h/40/f=pdf")!).eraseToAnyView()),
             .piano(PDFViewer(url: URL(string: "http://www.hymnal.net/en/hymn/h/40/f=ppdf")!).eraseToAnyView())]
-        
+
         return Group {
             GeometryReader { geometry in
                 IndicatorTabView(geometry: geometry, currentTab: selectedTabBinding, tabItems: tabItems)

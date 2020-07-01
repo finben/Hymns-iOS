@@ -10,15 +10,13 @@ struct TabBar<TabItemType: TabItem>: View {
     let geometry: GeometryProxy
     let tabItems: [TabItemType]
 
-    @State private var isCalcuating = true
     @State private var width: CGFloat = 0
 
     var body: some View {
-        if isCalcuating {
+        if width <= 0 {
             return
                 ZStack {
                     ForEach(tabItems) { tabItem in
-                        Spacer()
                         Button(
                             action: {},
                             label: {
@@ -41,8 +39,6 @@ struct TabBar<TabItemType: TabItem>: View {
                     }
                 }.onPreferenceChange(WidthPreferenceKey.self) { width in
                     self.width = width
-                }.onAppear {
-                    self.isCalcuating = false
                 }.eraseToAnyView()
         } else {
             return
@@ -74,8 +70,9 @@ struct TabBar<TabItemType: TabItem>: View {
                             Spacer()
                         }
                     }
-                    .frame(width: getWidth())
+                    .frame(width: self.width > geometry.size.width ? nil : geometry.size.width)
                 }.backgroundPreferenceValue(FirstNonNilPreferenceKey<Anchor<CGRect>>.self) { boundsAnchor in
+                    // Create the indicator.
                     GeometryReader { proxy in
                         boundsAnchor.map { anchor in
                             indicator(
@@ -87,17 +84,8 @@ struct TabBar<TabItemType: TabItem>: View {
                             )
                         }
                     }
-                }
-                .background(Color(.systemBackground)).eraseToAnyView()
+                }.background(Color(.systemBackground)).eraseToAnyView()
         }
-    }
-
-    private func getWidth() -> CGFloat? {
-        let width = self.width
-        let geoWidth = geometry.size.width
-        let greater = width > geoWidth
-        print("booyah3 width: \(width), geoWidth: \(geoWidth), greater: \(greater)")
-        return width > geoWidth ? nil : geoWidth
     }
 
     private func isSelected(_ tabItem: TabItemType) -> Bool {

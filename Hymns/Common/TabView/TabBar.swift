@@ -10,26 +10,23 @@ struct TabBar<TabItemType: TabItem>: View {
     let geometry: GeometryProxy
     let tabItems: [TabItemType]
 
+    @State private var isCalcuating = true
     @State private var width: CGFloat = 0
 
     var body: some View {
         var totalWidth: CGFloat = 0
 
-        return
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
+        if isCalcuating {
+            return
+                ZStack {
                     ForEach(tabItems) { tabItem in
                         Spacer()
                         Button(
-                            action: {
-                                withAnimation(.default) {
-                                    self.currentTab = tabItem
-                                }
-                        },
+                            action: {},
                             label: {
                                 Group {
                                     if self.isSelected(tabItem) {
-                                        Text("sdfsdfasfadsfdsafasdfsaf")
+                                        tabItem.selectedLabel
                                     } else {
                                         tabItem.unselectedLabel
                                     }
@@ -45,28 +42,59 @@ struct TabBar<TabItemType: TabItem>: View {
                                 value: .bounds,
                                 transform: { anchor in self.isSelected(tabItem) ? .some(anchor) : nil }
                         )
-                        Spacer()
                     }
-                }
-                .frame(width: getWidth())
-            }.backgroundPreferenceValue(FirstNonNilPreferenceKey<Anchor<CGRect>>.self) { boundsAnchor in
-                GeometryReader { proxy in
-                    boundsAnchor.map { anchor in
-                        indicator(
-                            width: proxy[anchor].width,
-                            offset: .init(
-                                width: proxy[anchor].minX,
-                                height: proxy[anchor].height - 4 // Make the indicator a little higher
+                }.onPreferenceChange(WidthPreferenceKey.self) { thing in
+                    print("booyah2 new width = \(totalWidth)... greater? \(totalWidth > self.geometry.size.width)... thing \(thing)")
+                    self.width = totalWidth
+                }.onAppear {
+                    self.isCalcuating = false
+                }.eraseToAnyView()
+        } else {
+            return
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack {
+                        ForEach(tabItems) { tabItem in
+                            Spacer()
+                            Button(
+                                action: {
+                                    withAnimation(.default) {
+                                        self.currentTab = tabItem
+                                    }
+                            },
+                                label: {
+                                    Group {
+                                        if self.isSelected(tabItem) {
+                                            tabItem.selectedLabel
+                                        } else {
+                                            tabItem.unselectedLabel
+                                        }
+                                    }.accessibility(label: tabItem.a11yLabel).padding()
+                            })
+                                .accentColor(self.isSelected(tabItem) ? .accentColor : .primary)
+                                .anchorPreference(
+                                    key: FirstNonNilPreferenceKey<Anchor<CGRect>>.self,
+                                    value: .bounds,
+                                    transform: { anchor in self.isSelected(tabItem) ? .some(anchor) : nil }
                             )
-                        )
+                            Spacer()
+                        }
+                    }
+                    .frame(width: getWidth())
+                }.backgroundPreferenceValue(FirstNonNilPreferenceKey<Anchor<CGRect>>.self) { boundsAnchor in
+                    GeometryReader { proxy in
+                        boundsAnchor.map { anchor in
+                            indicator(
+                                width: proxy[anchor].width,
+                                offset: .init(
+                                    width: proxy[anchor].minX,
+                                    height: proxy[anchor].height - 4 // Make the indicator a little higher
+                                )
+                            )
+                        }
                     }
                 }
-            }
-            .onPreferenceChange(WidthPreferenceKey.self) { thing in
-                print("booyah2 new width = \(totalWidth)... greater? \(totalWidth > self.geometry.size.width)")
-                self.width = totalWidth
-            }
-            .background(Color(.systemBackground)).eraseToAnyView()
+                .background(Color(.systemBackground)).eraseToAnyView()
+        }
     }
 
     private func getWidth() -> CGFloat? {
